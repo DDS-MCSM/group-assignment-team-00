@@ -1,0 +1,66 @@
+library(stringr)
+df = read.table("Z:\\secure-20181118", sep = ":", fill = TRUE, header= FALSE)
+View(df)
+
+merge.data.frame(df, df[4:ncol(df)])
+
+split()
+# extract dates
+df$fecha <- stringr::str_c(df$V1, df$V2, str_sub(df$V3, start = 1, end = 2), sep = ':')
+df$V1 <- NULL
+df$V2 <- NULL
+
+df
+
+df1 <- df[4:ncol(df)]
+c(df1)
+df2 <- paste(df$fecha," ", df$V4, df$V5, df$V6)
+View(df2)
+
+  
+df$message <- stringr::str_c(df[3:4])
+
+
+# extract ips
+ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
+df$ip <- str_extract(df$V4, ip_pattern)
+View(df)
+
+# create cols for attack type
+auth_pattern <- "Invalid user"
+df$is_auth_attack <- str_detect(df$V4, auth_pattern)
+
+userpattern <- "invalid user [[:word:]]"
+df$user <- str_extract(df$v)
+
+
+
+--- 
+
+library(stringr)
+library(tidyr)
+logFile<-read.table("Z:\\secure-20181118", sep = ":", fill = TRUE, header= FALSE)
+View(df)
+# extract dates
+result <- data.frame()
+colnames(result) <- c("fecha")
+fecha <- stringr::str_c(logFile$V1, logFile$V2, str_sub(logFile$V3, start = 1, end = 2), sep = ':')
+
+#join message
+df_args <- c(logFile[4:ncol(df)], sep="")
+message <-do.call(paste, df_args)
+
+result 
+
+
+# extract ips
+ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
+df$ip <- str_extract(df$V4, ip_pattern)
+View(df)
+
+# create cols for attack type
+auth_pattern <- "Invalid user"
+df$is_auth_attack <- str_detect(df$V4, auth_pattern)
+
+userpattern <- "invalid user [[:word:]]"
+df$user <- str_extract(df$v)
