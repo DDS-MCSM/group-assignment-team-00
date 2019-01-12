@@ -6,7 +6,7 @@ unzipLogFiles()
 
 df <- getData()
 dfip <- getDataFrameAllIps(df)
-
+dfUsers <- getDataFrameUsers(df)
 
 ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
 df$ip <- str_extract(df$message, ip_pattern)
