@@ -1,5 +1,6 @@
 
 source("R/rawdata.R")
+source("R/iptolocation/ip2location.R")
 
 #dependecies
 if (!require(stringr)) {
@@ -59,6 +60,8 @@ extractNA <- function(df, columnname) {
 
 getRawData <- function () {
 
+  unzipLogFiles();
+
   logTable1 <- getLogTable1()
   df1 <- getDataFrameLog(logTable1)
 
@@ -78,17 +81,28 @@ getRawData <- function () {
 }
 
 
-getDataFrameAllIps <- function(df) {
+getDataFrameAllIps <- function(df = NULL, includeIpLocation = FALSE) {
+
+  if (is.null(df)) {
+    df <- getRawData()
+  }
+
+
   dfIp <- df
-  ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
-  df$date <- formatDateColumn(dfIp$date)
-  dfIp$ip <- str_extract(dfIp$message, ip_pattern)
-  dfIp <- extractNA(dfIp, 'ip')
-  return(extractNA(dfIp, 'ip'))
+
+  dfIp$date <- formatDateColumn(dfIp$date)
+  dfIp$ip <- getIp(dfIp$message)
+  dfIp <- extractNA(dfIp)
+
+  if (includeIpLocation) {
+    dfIp <- getIpToLocationDataframe(dfIp, "ip")
+  }
+
+  return(dfIp)
 }
 
 getIp <- function (ip) {
-  ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
+  ip_pattern <- "[[:digit:]]{1,3}[.][[:digit:]]{1,3}[.][[:digit:]]{1,3}[.][[:digit:]]{1,3}"
   return(str_extract(ip, ip_pattern))
 }
 
@@ -105,10 +119,13 @@ formatDateColumn <- function(string) {
   as.POSIXct(date, format="%Y %m %d %H:%M:%S")
 }
 
-getDataFrameUsers <- function(df) {
-  dfUser <- df
+getDataFrameUsers <- function(df = NULL, includeIpLocation = FALSE) {
 
-  pattern <- '(?<=Invalid user\\s)\\w+'
+  if (is.null(df)) {
+    df <- getRawData()
+  }
+
+  dfUser <- df
 
   dfUser$user <- getUsername(dfUser$message)
   dfUser <- extractNA(dfUser, 'user')
@@ -118,7 +135,36 @@ getDataFrameUsers <- function(df) {
 
   dfUser$date <- formatDateColumn(dfUser$date)
 
+  if (includeIpLocation) {
+    dfUser <- getIpToLocationDataframe(dfUser, "ip")
+  }
+
   return (dfUser)
 }
 
 
+isPortScanner <- function (message) {
+  return (length(str_subset(string = message, pattern = 'Received disconnect')) > 0)
+}
+
+getDataFramePortScan<- function(df = NULL, includeIpLocation = FALSE) {
+
+  if (is.null(df)) {
+    df <- getRawData()
+  }
+
+
+  df$isPort <- lapply(df$message, FUN = isPortScanner)
+  result <- df[df$isPort == TRUE,]
+  df$isPort <- NULL
+  result$isPort <- NULL
+  result$ip <- getIp(result$message)
+  result$date <- formatDateColumn(result$date)
+
+  if (includeIpLocation) {
+    result <- getIpToLocationDataframe(result, "ip")
+  }
+
+  return (result)
+
+}
