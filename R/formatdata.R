@@ -81,9 +81,44 @@ getRawData <- function () {
 getDataFrameAllIps <- function(df) {
   dfIp <- df
   ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
+  df$date <- formatDate(dfIp$date)
   dfIp$ip <- str_extract(dfIp$message, ip_pattern)
   dfIp <- extractNA(dfIp, 'ip')
   return(extractNA(dfIp, 'ip'))
-
 }
+
+getIp <- function (ip) {
+  ip_pattern <- "[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}.[[:digit:]]{1,3}"
+  return(str_extract(ip, ip_pattern))
+}
+
+getUsername <- function(string) {
+  pattern <- '(?<=Invalid user\\s)\\w+'
+  return(str_extract(string,pattern))
+}
+
+
+formatDate <- function(string) {
+  date <- str_replace(string = string, pattern = 'Nov', replace ='11')
+  date <- str_replace(string = date, pattern = 'Dec', replace ='12')
+  date <- str_c("2018", date, sep=" ")
+  as.POSIXct(date, format="%Y %m %d %H:%M:%S")
+}
+
+getDataFrameUsers <- function(df) {
+  dfUser <- df
+
+  pattern <- '(?<=Invalid user\\s)\\w+'
+
+  dfUser$user <- getUsername(dfUser$message)
+  dfUser <- extractNA(dfUser, 'user')
+
+  dfUser$ip <- getIp(dfUser$message)
+  dfUser <- extractNA(dfUser, 'ip')
+
+  dfUser$date <- formatDate(dfUser$date)
+
+  return (dfUser)
+}
+
 
