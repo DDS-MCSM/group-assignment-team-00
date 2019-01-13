@@ -1,14 +1,21 @@
 
-source("R/rawdata.R")
-source("R/iptolocation/ip2location.R")
-
 #dependecies
 if (!require(stringr)) {
   install.packages(stringr)
 }
 
+if (!require(dplyr)) {
+  install.packages("dplyr")
+}
 
 library(stringr)
+library(dplyr)
+
+source(paste(getwd(),"/R/rawdata.R", sep=''))
+source(paste(getwd(),"/R/iptolocation/ip2location.R", sep=''))
+
+
+
 
 #' Format dates
 #'
@@ -116,7 +123,7 @@ formatDateColumn <- function(string) {
   date <- str_replace(string = string, pattern = 'Nov', replace ='11')
   date <- str_replace(string = date, pattern = 'Dec', replace ='12')
   date <- str_c("2018", date, sep=" ")
-  as.POSIXct(date, format="%Y %m %d %H:%M:%S")
+  return(as.POSIXct(date, format="%Y %m %d %H:%M:%S"))
 }
 
 getDataFrameUsers <- function(df = NULL, includeIpLocation = FALSE) {
@@ -166,5 +173,56 @@ getDataFramePortScan<- function(df = NULL, includeIpLocation = FALSE) {
   }
 
   return (result)
+
+}
+
+
+getDuplicatedDataframeColumn <- function(df, columname) {
+
+  df <-
+
+  data.frame()
+}
+
+
+getDuplicatedUsers <- function (df = NULL) {
+
+  if (is.null(df)) {
+      df <- getDataFrameUsers(includeIpLocation = TRUE)
+  }
+
+  countUsers <- count(df, user)
+
+  return (countUsers)
+
+}
+
+getDuplicatedUsersWithCountry <- function(df = NULL) {
+
+  if (is.null(df)) {
+    df <- getDataFrameUsers(includeIpLocation = TRUE)
+  }
+
+  countUsers <- count(df, user, country)
+
+  return (countUsers)
+}
+
+getDuplicatedIPs <- function(df = NULL) {
+
+  if (is.null(df)) {
+    df <- getDataFrameAllIps(includeIpLocation = TRUE)
+  }
+
+  ips <- count(df, ip, country)
+
+  return (ips)
+}
+
+
+getUniqueIpsDataframe <- function () {
+  df <- getFilteredIps()
+
+  return (df)
 
 }

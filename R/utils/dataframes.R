@@ -1,11 +1,11 @@
 if (!require(stringr)) {
   install.packages("stringr")
-  library(stringr)
 }
 
+library(stringr)
 
 getFilename <- function(filename) {
-  return (str_c("data/",filename, '.RData'))
+  return (stringr::str_c("data/",filename, '.RData'))
 }
 
 saveDataFrame <-function (df, filename) {

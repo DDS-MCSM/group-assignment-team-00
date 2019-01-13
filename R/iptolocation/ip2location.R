@@ -20,7 +20,7 @@ if (!require(IPtoCountry)) {
 
 source('R/utils/dataframes.R')
 
-getFilteredIps <- function(df, ipcolname, forceRecalc = FALSE) {
+getFilteredIps <- function(df = NULL, ipcolname = 'ip', forceRecalc = FALSE) {
   filteredIps <- getSavedDataFrame('iploglocation')
   if (is.null(filteredIps) | forceRecalc) {
     #this process is very slow for 1500 ips may take around 1h30min
