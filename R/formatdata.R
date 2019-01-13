@@ -15,8 +15,6 @@ source(paste(str_replace(getwd(), "map", ''),"/R/rawdata.R", sep=''))
 source(paste(str_replace(getwd(), "map", ''),"/R/iptolocation/ip2location.R", sep=''))
 
 
-
-
 #' Format dates
 #'
 #' @details Unzip files
@@ -240,6 +238,30 @@ getTopUsersWithDate <- function (df = NULL, top = 5) {
   filteredUsers <- inner_join(usersTopN, users, by = "user")
 
   return (filteredUsers)
+}
+
+
+getTopAttackedDate <- function(df = NULL , top = 5) {
+
+  if (is.null(df)) {
+    df <- getRawData()
+  }
+
+  df$date <- formatDateColumn(df$date)
+
+  df$hour <- hour(df$date)
+  df$day <- day(df$date)
+
+  dfCount <- count(df,day)
+  dfCount <- arrange(dfCount, -n)
+
+  dfUniqueDays <-dfCount[1:top,]
+  df$isTop <- df$day %in% dfUniqueDays$day
+  df <- df[df$isTop == TRUE,]
+
+  return(df)
+
+
 }
 
 
