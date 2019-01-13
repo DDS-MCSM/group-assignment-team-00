@@ -5,7 +5,7 @@ if (!require(stringr)) {
 library(stringr)
 
 getFilename <- function(filename) {
-  return (stringr::str_c("data/",filename, '.RData'))
+  return (stringr::str_c(str_replace(getwd(), 'map', ''), "/data/",filename, '.RData'))
 }
 
 saveDataFrame <-function (df, filename) {

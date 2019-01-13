@@ -1,7 +1,8 @@
-if (!require(data.table)) {
-  install.packages("data.table");
-  library(data.table)
+if (!require(stringr)) {
+  install.packages("stringr");
 }
+
+library(stringr)
 
 if (!require(devtools)) {
   install.packages("devtools")
@@ -18,14 +19,14 @@ if (!require(IPtoCountry)) {
   data(ip2location.lite.db11)
 }
 
-source('R/utils/dataframes.R')
+source(paste(str_replace(getwd(), "map", ''), '/R/utils/dataframes.R', sep=''))
 
 getFilteredIps <- function(df = NULL, ipcolname = 'ip', forceRecalc = FALSE) {
   filteredIps <- getSavedDataFrame('iploglocation')
   if (is.null(filteredIps) | forceRecalc) {
     #this process is very slow for 1500 ips may take around 1h30min
     ips <- df[ipcolname]
-    ips <- removeIPsDuplicaded(ips, colname)
+    ips <- removeIPsDuplicaded(ips, 'ip')
     ip2location <- do.call(rbind, sapply(df[ipcolname], FUN=IP_location))
     filteredIps <- cbind(ips$ip, ip2location)
     saveDataFrame('filteredIps')

@@ -11,8 +11,8 @@ if (!require(dplyr)) {
 library(stringr)
 library(dplyr)
 
-source(paste(getwd(),"/R/rawdata.R", sep=''))
-source(paste(getwd(),"/R/iptolocation/ip2location.R", sep=''))
+source(paste(str_replace(getwd(), "map", ''),"/R/rawdata.R", sep=''))
+source(paste(str_replace(getwd(), "map", ''),"/R/iptolocation/ip2location.R", sep=''))
 
 
 
@@ -217,6 +217,29 @@ getDuplicatedIPs <- function(df = NULL) {
   ips <- count(df, ip, country)
 
   return (ips)
+}
+
+
+getTopUsers <- function (df = NULL, top = 5) {
+
+  usersTop <- getDuplicatedUsers()
+
+  usersTop<- arrange(usersTop, -n)
+  usersTopN <- usersTop[1:top, ]
+
+  return (usersTopN)
+
+}
+
+
+getTopUsersWithDate <- function (df = NULL, top = 5) {
+
+  users <- getDataFrameUsers()
+  usersTopN <- getTopUsers(top = top)
+
+  filteredUsers <- inner_join(usersTopN, users, by = "user")
+
+  return (filteredUsers)
 }
 
 
