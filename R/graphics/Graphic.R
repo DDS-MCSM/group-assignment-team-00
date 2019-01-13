@@ -17,3 +17,14 @@ tablaUserTop <- function(){
 df <- getTopUsers()
 grid.table(df)
 }
+
+# Charge the plotly library
+library(plotly)
+
+getTopDateGraphic <- function(){
+df <- getTopAttackedDate(top = 20)
+# Make a basic scatter plot :
+p=plot_ly(df, x = ~day, y = ~hour, type="scatter", text = paste("Fecha: ", df$date),
+          mode = "markers", color = ~day, size = ~day)
+p
+}
