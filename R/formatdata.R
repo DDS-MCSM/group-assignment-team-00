@@ -8,8 +8,13 @@ if (!require(dplyr)) {
   install.packages("dplyr")
 }
 
+if (!require(lubridate)) {
+  install.packages("lubridate")
+}
+
 library(stringr)
 library(dplyr)
+library(lubridate)
 
 source(paste(str_replace(getwd(), "map", ''),"/R/rawdata.R", sep=''))
 source(paste(str_replace(getwd(), "map", ''),"/R/iptolocation/ip2location.R", sep=''))
@@ -63,6 +68,15 @@ extractNA <- function(df, columnname) {
   return (df[!is.na(df[columnname]),])
 }
 
+
+#' Raw Data
+#'
+#' @details Get RawData from files formatted in a dataframe of two columns date and message
+#' @return a dataframe with all logs
+#' @export
+#'
+#' @examples
+
 getRawData <- function () {
 
   unzipLogFiles();
@@ -85,11 +99,22 @@ getRawData <- function () {
 
 }
 
+#' All Ips dataframe
+#'
+#' @details Get a dataframe of all IPs extracted, optionally can include location data
+#' @return a dataframe with all logs with ip
+#' @export
+#'
+#' @examples
 
-getDataFrameAllIps <- function(df = NULL, includeIpLocation = FALSE) {
+getDataFrameAllIps <- function(includeIpLocation = FALSE) {
 
-  if (is.null(df)) {
+  df <- getSavedDataFrame('allips')
+
+  if (is.null(df) || recalc) {
     df <- getRawData()
+  } else {
+    return (df)
   }
 
 
@@ -102,6 +127,8 @@ getDataFrameAllIps <- function(df = NULL, includeIpLocation = FALSE) {
   if (includeIpLocation) {
     dfIp <- getIpToLocationDataframe(dfIp, "ip")
   }
+
+  saveDataFrame(dfIp, 'allips')
 
   return(dfIp)
 }
@@ -124,10 +151,20 @@ formatDateColumn <- function(string) {
   return(as.POSIXct(date, format="%Y %m %d %H:%M:%S"))
 }
 
-getDataFrameUsers <- function(df = NULL, includeIpLocation = FALSE) {
+#' All LoginAttemps dataframe
+#'
+#' @details Get a dataframe of all users and ips extracted, optionally can include location data
+#' @return a dataframe with all logs with ip
+#' @export
+#'
+#' @examples
+
+getDataFrameUsers <- function(df = NULL, includeIpLocation = FALSE, uniqueIP = TRUE) {
 
   if (is.null(df)) {
     df <- getRawData()
+  } else {
+    return(df)
   }
 
   dfUser <- df
@@ -144,6 +181,10 @@ getDataFrameUsers <- function(df = NULL, includeIpLocation = FALSE) {
     dfUser <- getIpToLocationDataframe(dfUser, "ip")
   }
 
+  if (uniqueIP) {
+    dfUser <- distinct(dfUser,ip, .keep_all = TRUE)
+  }
+
   return (dfUser)
 }
 
@@ -152,7 +193,15 @@ isPortScanner <- function (message) {
   return (length(str_subset(string = message, pattern = 'Received disconnect')) > 0)
 }
 
-getDataFramePortScan<- function(df = NULL, includeIpLocation = FALSE) {
+#' All PortScan dataframe
+#'
+#' @details Get a dataframe of all IPs extracted, optionally can include location data
+#' @return a dataframe with all logs with ip
+#' @export
+#'
+#' @examples
+
+getDataFramePortScan<- function(df = NULL, includeIpLocation = FALSE, uniqueIP = FALSE) {
 
   if (is.null(df)) {
     df <- getRawData()
@@ -170,16 +219,12 @@ getDataFramePortScan<- function(df = NULL, includeIpLocation = FALSE) {
     result <- getIpToLocationDataframe(result, "ip")
   }
 
+  if (uniqueIP) {
+    result <- distinct(result,ip, .keep_all = TRUE)
+  }
+
   return (result)
 
-}
-
-
-getDuplicatedDataframeColumn <- function(df, columname) {
-
-  df <-
-
-  data.frame()
 }
 
 
@@ -218,6 +263,56 @@ getDuplicatedIPs <- function(df = NULL) {
 }
 
 
+#' TopCountry dataframe
+#'
+#' @details Get a dataframe of n countries with more repetitions in logs
+#' @return a dataframe
+#' @export
+#'
+#' @examples
+
+getTopCountry <- function(df = NULL, top = 5) {
+  if (is.null(df)) {
+    df = getDataFrameAllIps(includeIpLocation = FALSE)
+  }
+
+  dfCount <- count(df, country)
+  dfCount <- arrange(dfCount, -n)
+
+  dfTopCountry <-dfCount[1:top,]
+
+  return(dfTopCountry)
+}
+
+#' TopCountry all logs dataframe
+#'
+#' @details Get a dataframe with all the logs of the n countries with more repetitions in logs
+#' @return a dataframe
+#' @export
+#'
+#' @examples
+
+getTopAttacksByCountry <- function (df = NULL, top = 5) {
+
+  if (is.null(df)) {
+    df = getDataFrameAllIps(includeIpLocation = FALSE)
+  }
+
+  dfTopCountry <- getTopCountry(df)
+  filteredCountry <- inner_join(dfTopCountry, df, by = "country")
+
+  return(filteredCountry)
+
+}
+
+#' TopUsers dataframe
+#'
+#' @details Get a dataframe of n users with more repetitions in logs
+#' @return a dataframe
+#' @export
+#'
+#' @examples
+
 getTopUsers <- function (df = NULL, top = 5) {
 
   usersTop <- getDuplicatedUsers()
@@ -229,6 +324,13 @@ getTopUsers <- function (df = NULL, top = 5) {
 
 }
 
+#' TopUsers all logs dataframe
+#'
+#' @details Get a dataframe with all the logs of the n users with more repetitions in logs
+#' @return a dataframe
+#' @export
+#'
+#' @examples
 
 getTopUsersWithDate <- function (df = NULL, top = 5) {
 
@@ -240,6 +342,13 @@ getTopUsersWithDate <- function (df = NULL, top = 5) {
   return (filteredUsers)
 }
 
+#' TopDate all logs dataframe
+#'
+#' @details Get a dataframe with all the logs of the n date with more repetitions in logs
+#' @return a dataframe
+#' @export
+#'
+#' @examples
 
 getTopAttackedDate <- function(df = NULL , top = 5) {
 

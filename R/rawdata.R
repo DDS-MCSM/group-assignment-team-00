@@ -1,3 +1,11 @@
+if (!require(stringr)) {
+  install.packages(stringr)
+}
+
+
+library(stringr)
+
+
 #' Unzip files
 #'
 #' @details Unzip files
@@ -6,7 +14,7 @@
 #'
 #' @examples
 unzipLogFiles <- function() {
-  if (!dir.exists("./logs")) {
+  if (!dir.exists(str_c(str_replace(getwd(), "map", ''),"/logs"))) {
     unzip("logs.zip")
   }
 }
@@ -20,7 +28,7 @@ unzipLogFiles <- function() {
 #' @examples
 
 getLogTable1 <- function() {
-  df = read.table("./logs/secure-20181118", sep = ":", fill = TRUE, header= FALSE)
+  df = read.table(str_c(str_replace(getwd(), "map", ''),"/logs/secure-20181118"), sep = ":", fill = TRUE, header= FALSE)
   return (df)
 }
 
@@ -32,7 +40,7 @@ getLogTable1 <- function() {
 #'
 #' @examples
 getLogTable2 <- function() {
-  df = read.table("./logs/secure-20181125", sep = ":", fill = TRUE, header= FALSE)
+  df = read.table(str_c(str_replace(getwd(), "map", ''),"/logs/secure-20181125"), sep = ":", fill = TRUE, header= FALSE)
   return (df)
 }
 
@@ -45,7 +53,7 @@ getLogTable2 <- function() {
 #'
 #' @examples
 getLogTable3 <- function() {
-  df = read.table("./logs/secure-20181202", sep = ":", fill = TRUE, header= FALSE)
+  df = read.table(str_c(str_replace(getwd(), "map", ''),"/logs/secure-20181202"), sep = ":", fill = TRUE, header= FALSE)
   return (df)
 }
 
@@ -57,6 +65,6 @@ getLogTable3 <- function() {
 #'
 #' @examples
 getLogTable4 <- function() {
-  df = read.table("./logs/secure-20181209", sep = ":", fill = TRUE, header= FALSE)
+  df = read.table(str_c(str_replace(getwd(), "map", ''),"/logs/secure-20181209"), sep = ":", fill = TRUE, header= FALSE)
   return (df)
 }
