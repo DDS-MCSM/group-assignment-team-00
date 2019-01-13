@@ -1,24 +1,24 @@
 source("R/formatdata.R")
 
-if (!require(grid)) {
+if (!suppressMessages(suppressWarnings(require(grid)))) {
   install.packages("grid")
 }
 
-if (!require(grid)) {
+if (!suppressMessages(suppressWarnings(require(grid)))) {
   install.packages("gridExtra")
 }
 
-if (!require(ggplot2)) {
+if (!suppressMessages(suppressWarnings(require(ggplot2)))) {
   install.packages("ggplot2")
 }
 
-if (!require(plotly)) {
+if (!suppressMessages(suppressWarnings(require(plotly)))) {
   install.packages("plotly")
 }
 
-library(grid)
-library(plotly)
-library(gridExtra)
+suppressMessages(suppressWarnings(library(grid)))
+suppressMessages(suppressWarnings(library(plotly)))
+suppressMessages(suppressWarnings(library(gridExtra)))
 
 densidadUserTop <- function(){
   df <- getTopUsersWithDate()

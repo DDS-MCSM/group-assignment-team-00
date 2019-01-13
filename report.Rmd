@@ -16,6 +16,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 80)
+```
+
 Este trabajo se basa en el análisis de logs ocurridos en un servidor que tiene habilitado el servicio SSH. Los logs se corresponde a un periodo de tres semanas. El propósito es contestar éstas preguntas: 
 
   - Geolocalización de las IPs atacandes.

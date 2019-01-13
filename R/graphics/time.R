@@ -2,7 +2,7 @@ source('R/utils/date.R')
 source('R/formatdata.R')
 
 
-if (!require(ggplot2)) {
+if (!suppressMessages(suppressWarnings(require(ggplot2)))) {
   install.packages("ggplot2")
   library(ggplot2)
 }

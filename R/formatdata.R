@@ -1,20 +1,20 @@
 
 #dependecies
-if (!require(stringr)) {
+if (!suppressMessages(suppressWarnings(require(stringr)))) {
   install.packages(stringr)
 }
 
-if (!require(dplyr)) {
+if (!suppressMessages(suppressWarnings(require(dplyr)))) {
   install.packages("dplyr")
 }
 
-if (!require(lubridate)) {
+if (!suppressMessages(suppressWarnings(require(lubridate)))) {
   install.packages("lubridate")
 }
 
-library(stringr)
-library(dplyr)
-library(lubridate)
+suppressMessages(suppressWarnings(library(stringr)))
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(lubridate)))
 
 source(paste(str_replace(getwd(), "map", ''),"/R/rawdata.R", sep=''))
 source(paste(str_replace(getwd(), "map", ''),"/R/iptolocation/ip2location.R", sep=''))
