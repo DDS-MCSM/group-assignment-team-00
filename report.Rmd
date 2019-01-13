@@ -1,0 +1,125 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Este trabajo se basa en el análisis de logs ocurridos en un servidor que tiene habilitado el servicio SSH. Los logs se corresponde a un periodo de tres semanas. El propósito es contestar éstas preguntas: 
+
+  - Geolocalización de las IPs atacandes.
+  - Horarios de los ataques.
+  - Tops sobre atacantes.
+  - Usuarios usados en los ataques
+  - PortScanner
+  - LoginAttemp
+
+## Fuente de recursos
+
+En este trabajo hemos utilizado unos repositorios. Hemos facilitado las localizaciones de las IP's gracias al repositorio "https://lite.ip2location.com/database/ip-country-region-city-latitude-longitude". Cuando queríamos realizar las correlaciones entre IP y geolocalización, nos encontramos con el problema de que las bases de datos de geolocalización eran muy grandes, y tardabamos mucho tiempo en sacar los resultados. Al final tomamos la decisión de usar el package "IPCountry" obtenido del repositorio "https://github.com/gitronald/IPtoCountry".
+Una vez obtenidas las direcciones, con sus coordenadas, pudimos empezar a hacer el estudio de los datos según el país. Aprovechando los datos decidimos crear un shiny app que mostrara con más detalle el orígen de los ataques.
+
+
+## Ejecución de de shiny app
+
+Ejecutar shiny app. Importante, para ejecutarlo hay que abrir el "GroupAssignmentTemplate.Rproj". Y desde la mísma consola de Rstudio.
+
+```{r, echo=TRUE,eval=FALSE}
+install.packages("shiny")
+library("shiny")
+runApp("map")
+```
+
+
+## Análisis de datos
+
+Hemos considerado los análisis de aquellos logs que contenían información de IP's. Además hemos diferenciado dos tipos de ataques específicos: 
+ 
+ - PortScan
+ - LoginAttempt
+
+Para empezar nos interesaba ver la distribución de los ataques en los días para saber si exixtían picos o si era todo más homogeneo.
+
+```{r, echo=FALSE}
+source('R/graphics/time.R')
+source('R/graphics/Graphic.R')
+
+```
+
+
+```{r, echo=TRUE}
+histogramAllIps()
+
+```
+
+Hemos detectado dos picos relevantes el final de la primera semana y los comienzos de la segunda semana.Además en la última semana los ataques disminuyeron muchísimo en comparación al resto. Si analizamos separando por el tipo de ataque: 
+
+ - LoginAttempt: La distribución de los ataques se concentra en el último periodo 
+ 
+```{r, echo=TRUE}
+histogramUsers()
+
+```
+
+ - PortScan: La distribución de los ataques es similar a la primera mencionada
+ 
+```{r, echo=TRUE}
+histogramPortScan()
+
+```
+
+Además hemos querido ver la distribución de los ataque segun la línea temporal de un día:
+
+```{r, echo=TRUE}
+getTopDateGraphic()
+
+```
+
+##LoginAttempt
+
+Aprobechando que LoginAttempt nos ofrece información sobre el tipo de usuario que más se usa en este tipo de ataques, hemos realizado unas estadísticas basándo nos en esta información. Primero, hemos extraído el top de usuarios más usados:
+
+```{r, echo=TRUE}
+tablaUserTop()
+
+```
+
+Una vez obtenida la tabla, quisimos ver la distribución del tiempo en los ataques:
+
+```{r, echo=TRUE}
+densidadUserTop()
+
+```
+
+Sucede lo mísmo que los histogramas, en los finales de la primera semana y principios de la segunda semana, la densidad es mayor. A lo largo de la segunda semana hay una caída, y en la tercera semana empieza la actividad.
+
+##Países atacantes
+
+Tal como hemos hecho con los usuarios hemos creado una tabla relacionando países con los ataques, y de ahí hemos sacado el top de países representantes: 
+
+```{r, echo=TRUE}
+tableTopCountry()
+
+```
+
+Una vez obtenida la tabla, hemos querido hacer lo mísmo que hemos hecho anteriormente:
+
+```{r, echo=TRUE}
+getCountryTopGraphic()
+
+```
+
+##Conclusiones
+
+Finalmente hemos llegado a unas conclusiones de que los ataques son homogeneos durante el día, pero no durante el transcurso de las semanas. Dado que existen picos de intensidad bastante pronunciados. No nos hemos sorprendido al ver que el usuario más usado es "admin", pero si al ver que el usuario "guest" específico del linux también se ha repetido varias veces. Con especial sorpresa de ver que los ataques ambién se originan no solo en lugares conocidos como China e India, sino también en lugares como Grecia.
