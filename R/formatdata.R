@@ -111,7 +111,7 @@ getDataFrameAllIps <- function(includeIpLocation = FALSE) {
 
   df <- getSavedDataFrame('allips')
 
-  if (is.null(df) || recalc) {
+  if (is.null(df)) {
     df <- getRawData()
   } else {
     return (df)
@@ -298,7 +298,7 @@ getTopAttacksByCountry <- function (df = NULL, top = 5) {
     df = getDataFrameAllIps(includeIpLocation = FALSE)
   }
 
-  dfTopCountry <- getTopCountry(df)
+  dfTopCountry <- getTopCountry(df, top)
   filteredCountry <- inner_join(dfTopCountry, df, by = "country")
 
   return(filteredCountry)

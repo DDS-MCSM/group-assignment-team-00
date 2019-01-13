@@ -1,4 +1,6 @@
 source('R/utils/date.R')
+source('R/formatdata.R')
+
 
 if (!require(ggplot2)) {
   install.packages("ggplot2")
@@ -9,7 +11,22 @@ distributionDayGraphic <- function (df, title, xaxistitle) {
   hist(x = df$date, format = getDateFormat() , col = 'blue', breaks = "day", freq = T, main = title, xlab = xaxistitle)
 }
 
-histogramDay <- function (df) {
+distributionDayGraphic <- function (df) {
   ggplot(data = df, aes(x = df$date)) + geom_histogram(fill ="skyblue", alpha = 1) +
-    ggtitle("Histogram") + theme_minimal()
+    ggtitle("Histogram") + xlab(label = "fecha") + ylab(label = "ataques") + theme_minimal()
+}
+
+histogramPortScan <- function() {
+  df <- getDataFramePortScan()
+  return (distributionDayGraphic(df))
+}
+
+histogramAllIps <- function() {
+  df <- getDataFrameAllIps()
+  return (distributionDayGraphic(df))
+}
+
+histogramUsers <- function() {
+  df <- getDataFrameUsers()
+  return (distributionDayGraphic(df))
 }
